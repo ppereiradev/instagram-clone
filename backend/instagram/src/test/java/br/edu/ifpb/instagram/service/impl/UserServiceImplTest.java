@@ -4,11 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,7 @@ public class UserServiceImplTest {
     @MockitoBean
     PasswordEncoder passwordEncoder;
 
+    // findById() Tests =========================================================
     @Test
     void testFindById_ReturnsUserDto() {
         // Configurar o comportamento do mock
@@ -77,7 +82,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findById(userId);
     }
 
-    
+    // createUser() Tests =========================================================
     @Test
     void testCreateUser_ReturnsUserDto() {
         Long userId = 1L;
@@ -102,6 +107,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).save(any(UserEntity.class));
     }
 
+    // updateUser() Tests =========================================================
     @Test
     void testUpdateUserPasswordNull_ReturnUserDto() {
         Long userID = 1L;
@@ -174,6 +180,69 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).updatePartialUser(
             "Paulo Pereira", "paulo@ppereira.dev", "paulo123", 
             senhaCodificada, userID);  // Verifique se a senha foi codificada
+    }
+
+    @Test
+    void testUpdateUser_ReturnUserNotFound(){
+        Long userID = 23L;
+
+        UserDto mockedUser = new UserDto(userID, "Paulo Pereira", "paulo123", "paulo@ppereira.dev", null, null);
+
+        when(userRepository.updatePartialUser(
+            "Paulo Pereira", "paulo@ppereira.dev", "paulo123", null, 23L))
+            .thenReturn(0);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            userService.updateUser(mockedUser);
+        });
+
+        assertEquals("User not found", exception.getMessage());
+
+        verify(userRepository, times(1)).updatePartialUser(
+            "Paulo Pereira", "paulo@ppereira.dev", "paulo123", null, 23L);
+
+    }
+
+    // findAll() Tests =========================================================
+    @Test
+    void testFindAll_ReturnAllUsers(){
+        UserEntity user1 = new UserEntity();
+        UserEntity user2 = new UserEntity();
+
+        List<UserEntity> expectedUsersDtos = Arrays.asList(user1, user2);
+
+        when(userRepository.findAll()).thenReturn(expectedUsersDtos);
+
+        List<UserDto> actualUsers = userService.findAll();
+
+        assertEquals(expectedUsersDtos.size(), actualUsers.size());
+
+        verify(userRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testFindAll_ReturnsUsersNotFound(){
+        List<UserEntity> expectedEmptyUsers = new ArrayList<>();
+
+        when(userRepository.findAll()).thenReturn(expectedEmptyUsers);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            List<UserDto> actualUsers = userService.findAll();
+        });
+
+        assertEquals("Users not found", exception.getMessage());
+
+        verify(userRepository, times(1)).findAll();
+    }
+
+    // deleteUser() Tests =========================================================
+    @Test
+    void testDeleteUser_CallsDeleteById(){
+        Long userId = 1L;
+
+        userService.deleteUser(userId);
+
+        verify(userRepository, times(1)).deleteById(userId);
     }
 
 }
