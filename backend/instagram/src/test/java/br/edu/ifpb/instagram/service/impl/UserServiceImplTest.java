@@ -2,9 +2,7 @@ package br.edu.ifpb.instagram.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,7 +15,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -227,7 +224,7 @@ public class UserServiceImplTest {
         when(userRepository.findAll()).thenReturn(expectedEmptyUsers);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            List<UserDto> actualUsers = userService.findAll();
+            userService.findAll();
         });
 
         assertEquals("Users not found", exception.getMessage());
