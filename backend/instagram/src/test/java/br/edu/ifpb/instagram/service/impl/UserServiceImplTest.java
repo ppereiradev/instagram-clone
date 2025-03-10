@@ -10,6 +10,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -171,18 +172,38 @@ public class UserServiceImplTest {
     @Test
     void shouldThrowExceptionWhenDeleteFails() {
         var id = 1L;
-
-        // Simula que a exclusão falha, por exemplo, quando o usuário não é encontrado no banco
         doThrow(new RuntimeException("User not found")).when(userRepository).deleteById(id);
-
-        // Chama o método de exclusão e espera uma exceção
         RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.deleteUser(id));
-
-        // Verifica se a exceção lançada possui a mensagem correta
         assertEquals("User not found", exception.getMessage());
     }
 
+    @Test
+    void shouldReturnListOfUserDtosWhenUsersExist() {
+        var id = 1L;
+        var userEntity = new UserEntity();
+        userEntity.setId(id);
+        userEntity.setFullName("John Doe");
+        userEntity.setUsername("john");
+        userEntity.setEmail("john@example.com");
+        userEntity.setEncryptedPassword("encryptedPassword");
 
+        when(userRepository.findAll()).thenReturn(List.of(userEntity));
 
+        var result = userService.findAll();
 
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("John Doe", result.get(0).fullName());
+        assertEquals("john", result.get(0).username());
+        assertEquals("john@example.com", result.get(0).email());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNoUsersExist() {
+        when(userRepository.findAll()).thenReturn(List.of());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.findAll());
+
+        assertEquals("Users not found", exception.getMessage());
+    }
 }
