@@ -42,7 +42,7 @@ public class InstagramSecurityConfig {
                     return corsConfig;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/signup", "/auth/signin", "/users").permitAll() //permissão para o endpoint de users
+                        .requestMatchers("/auth/signup", "/auth/signin", "/users", "/users/1").permitAll() //permissão para o endpoint de users
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
