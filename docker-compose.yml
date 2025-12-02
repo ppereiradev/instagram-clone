@@ -30,8 +30,6 @@ services:
       - MARIADB_DATABASE=instagram_db
       - MARIADB_USER=instagram_user
       - MARIADB_PASSWORD=instagram_password
-    ports:
-      - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
 
