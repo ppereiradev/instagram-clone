@@ -20,7 +20,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend/instagram/:/home/instagram
+      - frontend_data:/home/instagram
 
   db:
     image: mariadb:lts
@@ -37,4 +37,6 @@ services:
 
 volumes:
   mariadb_data:
+    driver: local
+  frontend_data:
     driver: local
